@@ -8,7 +8,7 @@
  * since some of these tests may require DOM elements. We want
  * to ensure they don't run until the DOM is ready.
  */
- $(function() {
+$(function() {
     /* This is our first test suite - a test suite just contains
     * a related set of tests. This suite is all about the RSS
     * feeds definitions, the allFeeds variable in our application.
@@ -21,7 +21,7 @@
          * allFeeds in app.js to be an empty array and refresh the
          * page?
          */
-         it('are defined', function() {
+        it('are defined', function() {
             expect(allFeeds).toBeDefined();
             expect(allFeeds.length).not.toBe(0);
         });
@@ -31,7 +31,7 @@
          * in the allFeeds object and ensures it has a URL defined
          * and that the URL is not empty.
          */
-         it('ensures url is defined & not empty', function() {
+        it('ensures url is defined & not empty', function() {
             for(let feed of allFeeds) {
                 expect(feed.url).toBeDefined();
 
@@ -45,7 +45,7 @@
          * in the allFeeds object and ensures it has a name defined
          * and that the name is not empty.
          */
-         it('ensures name is defined & not empty', function() {
+        it('ensures name is defined & not empty', function() {
             for(let feed of allFeeds){
                 expect(feed.name).toBeDefined();
 
@@ -76,44 +76,73 @@
             expect(hiddenMenu).toBe(true);
         });
 
-     /* TODO: Write a test that ensures the menu changes
-      * visibility when the menu icon is clicked. This test
-      * should have two expectations: does the menu display when
-      * clicked and does it hide when clicked again.
-      */
-      it('should toggle Off & On', function() {
-        //Grab the menu icon
-        const menuIcon = document.querySelector('.menu-icon-link');
+        /* TODO: Write a test that ensures the menu changes
+        * visibility when the menu icon is clicked. This test
+        * should have two expectations: does the menu display when
+        * clicked and does it hide when clicked again.
+        */
+        it('should toggle Off & On', function() {
+            //Grab the menu icon
+            const menuIcon = document.querySelector('.menu-icon-link');
 
-        //.click() stimulates a mouse click on an element
-        menuIcon.click();
+            //.click() stimulates a mouse click on an element
+            menuIcon.click();
 
-        hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
-        //We expect it to be false since we've clicked it.
-        expect(hiddenMenu).toBe(false);
+            hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
+            //We expect it to be false since we've clicked it.
+            expect(hiddenMenu).toBe(false);
 
-        //click again to turn off
-        menuIcon.click();
+            //click again to turn off
+            menuIcon.click();
 
-        hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
-        //We expect it to be true since we've clicked it again.
-        expect(hiddenMenu).toBe(true);
+            hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
+            //We expect it to be true since we've clicked it again.
+            expect(hiddenMenu).toBe(true);
         });
-      });     
+    });     
 
     /* TODO: Write a new test suite named "Initial Entries" */
-
+    describe('Initial Entries', function() {
         /* TODO: Write a test that ensures when the loadFeed
          * function is called and completes its work, there is at least
          * a single .entry element within the .feed container.
          * Remember, loadFeed() is asynchronous so this test will require
          * the use of Jasmine's beforeEach and asynchronous done() function.
          */
+        beforeEach(function(done) {
+            //Done lets jasmine know to continue
+            loadFeed(0, done);
+        });
+
+        it('ensures there is aleast a single feed entry', function() {
+            let feed = document.querySelector('.feed');
+            //expects an entry
+            expect(feed.children.length > 0).toBe(true);
+        });
 
          /* TODO: Write a new test suite named "New Feed Selection" */
+        describe('New Feed Selection', function() {
+            /* TODO: Write a test that ensures when a new feed is loaded
+             * by the loadFeed function that the content actually changes.
+             * Remember, loadFeed() is asynchronous.
+             */
 
-        /* TODO: Write a test that ensures when a new feed is loaded
-         * by the loadFeed function that the content actually changes.
-         * Remember, loadFeed() is asynchronous.
-         */
-     }());
+            let feed = document.querySelector('.feed');  
+            let firstFeedsFirstChild, secondFeedsFirstChild;
+
+            beforeEach(function(done) {
+                loadFeed(0);
+                firstFeedsFirstChild = feed.firstElementChild.innerText;
+
+                //load new feed
+                loadFeed(1, done);
+            });
+
+            it('ensures content changes', function() {
+                secondFeedsFirstChild = feed.firstElementChild.innerText;
+                
+                expect(firstFeedsFirstChild === secondFeedsFirstChild).toBe(false);
+            });
+        });
+    });
+}());
