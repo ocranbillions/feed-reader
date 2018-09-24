@@ -27,120 +27,106 @@ $(function() {
         });
 
 
-        /* TODO: Write a test that loops through each feed
-         * in the allFeeds object and ensures it has a URL defined
-         * and that the URL is not empty.
-         */
         it('ensures url is defined & not empty', function() {
             for(let feed of allFeeds) {
                 expect(feed.url).toBeDefined();
-
-                //check if url isn't empty
                 expect(feed.url.length).not.toBe(0);
             }
         });
 
 
-        /* TODO: Write a test that loops through each feed
-         * in the allFeeds object and ensures it has a name defined
-         * and that the name is not empty.
-         */
         it('ensures name is defined & not empty', function() {
-            for(let feed of allFeeds){
+            for(let feed of allFeeds){                
                 expect(feed.name).toBeDefined();
-
-                //checks if name isn't empty
                 expect(feed.name.length).not.toBe(0);
             }
         });
      });
 
 
-    /* TODO: Write a new test suite named "The menu" */
-    describe('The menu', function() {
-        let hiddenMenu, bodyElement;
+    /* This suite ensures menu element is hidden by default
+     * It also checks if menu's visibility toggles off & on
+     * in response to clicks on the menu icon
+     */
+    describe('The menu', function() {       
+        //Grab the body element            
+        let bodyElement = document.querySelector('body');      
 
-        beforeEach(function() {                      
-            bodyElement = document.querySelector('.menu-hidden');  
-        });
-
-         /* TODO: Write a test that ensures the menu element is
-         * hidden by default. You'll have to analyze the HTML and
-         * the CSS to determine how we're performing the
-         * hiding/showing of the menu element.
-         */
+        //variable to hold the visibility state of the menu    
+        let hiddenMenu;
 
         it('should be hidden', function() {
-            //checks if menu is hidden
+            //checks if menu is hidden by default
             hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
             expect(hiddenMenu).toBe(true);
         });
 
-        /* TODO: Write a test that ensures the menu changes
-        * visibility when the menu icon is clicked. This test
-        * should have two expectations: does the menu display when
-        * clicked and does it hide when clicked again.
-        */
+
         it('should toggle Off & On', function() {
             //Grab the menu icon
             const menuIcon = document.querySelector('.menu-icon-link');
 
-            //.click() stimulates a mouse click on an element
-            menuIcon.click();
+            //Click the menu  icon [.click() stimulates a mouse click on an element]
+            menuIcon.click();   
 
-            hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
-            //We expect it to be false since we've clicked it.
+            //checks if .menu-hidden is removed after the above click
+            //i.e menu should now be visible
+            hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;            
             expect(hiddenMenu).toBe(false);
 
-            //click again to turn off
+            //Click menu icon again
             menuIcon.click();
 
+            //Checks if .menu-hidden is re-applied to the menu
+            //i.e. menu should be hidden again
             hiddenMenu = bodyElement.classList.contains('menu-hidden') ? true : false;
-            //We expect it to be true since we've clicked it again.
             expect(hiddenMenu).toBe(true);
         });
     });     
 
-    /* TODO: Write a new test suite named "Initial Entries" */
+    /* This suite checks that there is at least a single .entry element 
+     * within feed container whenever loadFeed is called
+     */
     describe('Initial Entries', function() {
-        /* TODO: Write a test that ensures when the loadFeed
-         * function is called and completes its work, there is at least
-         * a single .entry element within the .feed container.
-         * Remember, loadFeed() is asynchronous so this test will require
-         * the use of Jasmine's beforeEach and asynchronous done() function.
-         */
+        //Perform and complete a loadFeed operation before proceeding with test.
         beforeEach(function(done) {
-            //Done lets jasmine know to continue
+            //Load feed via async and notify jasmine when done
             loadFeed(0, done);
         });
 
-        it('ensures there is aleast a single feed entry', function() {
-            let feed = document.querySelector('.feed');
-            //expects an entry
-            expect(feed.children.length > 0).toBe(true);
+        it('ensures there is at least a single feed entry', function() {
+            //expects at least 1 entry
+            let entries = document.querySelector('.feed').querySelectorAll('.entry');
+            expect(entries.length).toBeGreaterThan(0) ;
         });
 
-         /* TODO: Write a new test suite named "New Feed Selection" */
+        //This suite checks if content changes after a new feed is loaded
         describe('New Feed Selection', function() {
-            /* TODO: Write a test that ensures when a new feed is loaded
-             * by the loadFeed function that the content actually changes.
-             * Remember, loadFeed() is asynchronous.
-             */
-
-            let feed = document.querySelector('.feed');  
+            let feedContainer = document.querySelector('.feed');  
             let firstFeedsFirstChild, secondFeedsFirstChild;
 
+            //Perform and complete a loadFeed operation before proceeding with test.
             beforeEach(function(done) {
-                loadFeed(0);
-                firstFeedsFirstChild = feed.firstElementChild.innerText;
+                //Load first feed
+                loadFeed(0, function() {
+                    //Store it's first content
+                    firstFeedsFirstChild = feedContainer.firstElementChild.innerText; 
 
-                //load new feed
-                loadFeed(1, done);
+                    //load new feed
+                    loadFeed(1, function() {
+                        //Store it's first content
+                        secondFeedsFirstChild = feedContainer.firstElementChild.innerText;
+
+                        //Notify jasmine async work is done
+                        done();
+                    });
+                });                
             });
 
-            it('ensures content changes', function() {
-                secondFeedsFirstChild = feed.firstElementChild.innerText;
-                
+
+            //Compare first content of first feed with 
+            //first content of second feed   
+            it('ensures content changes', function() {        
                 expect(firstFeedsFirstChild === secondFeedsFirstChild).toBe(false);
             });
         });
